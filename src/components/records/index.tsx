@@ -1,19 +1,30 @@
-import React from 'react'
-import { Row, Col } from 'reactstrap'
-import RecordFilters from './filters'
-import RecordContents from './contents'
+import React, { useState } from 'react'
+import { Condition } from 'doongji-ui-banksalad'
+import { Button } from 'react-bootstrap'
+import ExcelFileModal from './ExcelFileModal'
+import HouseholdAccountsTable, { HouseholdAccounts } from './HouseholdAccountsTable'
 
-function Records() {
+function Records(props: RecordsProps) {
+  const [excelFile, setExcelFile] = useState<ExcelFileState>({ modal: false })
+  const [householdAccounts, setHouseholdAccounts] = useState<HouseholdAccounts[]>([])
+
   return (
-    <Row>
-      <Col lg="3">
-        <RecordFilters />
-      </Col>
-      <Col>
-        <RecordContents />
-      </Col>
-    </Row>
+    <div>
+      <Button variant="primary" className="mb-2" onClick={() => setExcelFile({ modal: true })}>
+        뱅크샐러드 엑셀 파일 등록
+      </Button>
+      <ExcelFileModal show={excelFile.modal} onCancel={() => setExcelFile({ modal: false })} />
+      <HouseholdAccountsTable householdAccounts={householdAccounts} />
+    </div>
   )
 }
 
 export default Records
+
+interface RecordsProps {
+  condition: Condition
+}
+
+interface ExcelFileState {
+  modal: boolean
+}

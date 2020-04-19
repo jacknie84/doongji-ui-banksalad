@@ -1,21 +1,18 @@
-import React, { useState } from 'react'
-import { Navbar, NavbarBrand, NavbarToggler, Nav, NavItem, NavLink, NavbarText } from 'reactstrap'
+import React from 'react'
+import { Navbar, Nav } from 'react-bootstrap'
 
 function GlobalNavigation() {
-  const [collapsed, setCollapsed] = useState<boolean>(true)
   return (
-    <Navbar dark color="dark" expand="md" className="mb-3">
-      <NavbarBrand href="/">Household Accounts</NavbarBrand>
-      <NavbarToggler onClick={e => setCollapsed(!collapsed)} />
-      <Nav className="mr-auto" navbar>
-        <NavItem>
-          <NavLink href="/records">Records</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink href="/visualization">Visualization</NavLink>
-        </NavItem>
-      </Nav>
-      <NavbarText>With Banksalad</NavbarText>
+    <Navbar bg="dark" variant="dark" expand="md" className="mb-3">
+      <Navbar.Brand href="/">Household Accounts</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar.Collapse id="basic-navbar-nav">
+        <Nav className="mr-auto" navbar>
+          <Nav.Link href="/records">Records</Nav.Link>
+          <Nav.Link href="/visualization">Visualization</Nav.Link>
+        </Nav>
+        <Navbar.Text>With Banksalad</Navbar.Text>
+      </Navbar.Collapse>
     </Navbar>
   )
 }
