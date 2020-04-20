@@ -6,6 +6,7 @@ import HouseholdAccountsTable, { HouseholdAccounts } from './HouseholdAccountsTa
 
 function Records(props: RecordsProps) {
   const [excelFile, setExcelFile] = useState<ExcelFileState>({ modal: false })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [householdAccounts, setHouseholdAccounts] = useState<HouseholdAccounts[]>([])
 
   return (

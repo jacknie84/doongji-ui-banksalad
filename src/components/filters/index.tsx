@@ -22,7 +22,7 @@ function Filters(props: FiltersProps) {
     }
   }
 
-  const onSubmitRetrieve = (condition: RetrievedCondition) => {
+  const onSubmitRetrieve = async (condition: RetrievedCondition) => {
     props.onRetrieve({
       predicates:
         condition.predicates?.map(({ fieldName, fieldValues, operator }) => ({
@@ -31,7 +31,7 @@ function Filters(props: FiltersProps) {
           values: fieldValues.split(',').map(value => value.trim()),
         })) || [],
     })
-    save(condition)
+    await save(condition)
     onInputRecentlyUsedPage(1)
     setRetrieve({ modal: false, model: condition })
   }

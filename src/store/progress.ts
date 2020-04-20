@@ -32,6 +32,15 @@ export default reducer
 
 export { update }
 
+export enum DefaultProgressType {
+  UPLOAD = 'default.upload',
+  DOWNLOAD = 'default.download',
+}
+
+export interface ProgressState {
+  [key: string]: ProgressEvent
+}
+
 interface ProgressEvent {
   lengthComputable: boolean
   loaded: number

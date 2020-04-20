@@ -2,12 +2,20 @@ import React, { useState } from 'react'
 import { Modal, Container, Row, Col, Button, Form } from 'react-bootstrap'
 import HouseholdAccountsTable, { HouseholdAccounts } from './HouseholdAccountsTable'
 import { isEmpty } from 'lodash'
+import ProgressButton from '../ProgressButton'
 
 function ExcelFileModal(props: ExcelFileModalProps) {
+  const [excelFile, setExcelFile] = useState<File | null>(null)
   const [householdAccounts, setHouseholdAccounts] = useState<HouseholdAccounts[]>([])
 
-  const onInputExcelFile = () => {
-    setHouseholdAccounts([{}])
+  const onInputExcelFile = (e: React.FocusEvent<HTMLInputElement>) => {
+    const file = e.target.files?.item(0)
+    if (file) {
+      setExcelFile(file)
+      // TODO excelFile parse
+      const householdAccounts = [{}]
+      setHouseholdAccounts(householdAccounts)
+    }
   }
 
   return (
@@ -20,10 +28,11 @@ function ExcelFileModal(props: ExcelFileModalProps) {
               <Form>
                 <Form.File
                   id="input-excel-file"
-                  label="뱅크샐러드 공유 엑셀 파일"
-                  data-browse="파일 찾기"
+                  label={excelFile?.name || '파일을 선택해 주세요.'}
+                  data-browse="Browse"
                   custom
                   onInput={onInputExcelFile}
+                  accept=".xls,.xlsx,.cvs"
                 />
               </Form>
             </Col>
@@ -37,9 +46,9 @@ function ExcelFileModal(props: ExcelFileModalProps) {
         <Button variant="secondary" onClick={props.onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={props.onCancel}>
+        <ProgressButton variant="primary" onClick={props.onCancel}>
           Submit
-        </Button>
+        </ProgressButton>
       </Modal.Footer>
     </Modal>
   )
