@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { Modal, Container, Row, Col, Button, Form } from 'react-bootstrap'
+import { Modal, Container, Row, Col, Button } from 'react-bootstrap'
 import HouseholdAccountsTable from './HouseholdAccountsTable'
 import ProgressButton from '../ProgressButton'
 import praseExcelFile from './parse-excel-file'
 import { HouseholdAccounts, put } from '../../api/household-accounts'
 import { set, isEmpty } from 'lodash'
+import ExcelFileForm from './ExcelFileForm'
 
 const itemSize = 6
 const pageSize = 10
@@ -29,7 +30,7 @@ function ExcelFileModal(props: ExcelFileModalProps) {
 
   useEffect(() => {
     if (show) {
-      setExcelFileForm({ validated: false, file: {}, userId: '', model: [], saving: false })
+      setExcelFileForm({ validated: false, file: {}, userId: 'jacknie', model: [], saving: false })
       setHouseholdAccounts({
         printable: false,
         loading: false,
@@ -41,9 +42,15 @@ function ExcelFileModal(props: ExcelFileModalProps) {
     }
   }, [show])
 
-  const getItemsByPage = (page: number, model: HouseholdAccounts[]) => {
+  const getItemsByPage = (page: number, model: HouseholdAccounts[] = []) => {
     const offset = (page - 1) * itemSize
     return model.slice(offset, offset + itemSize)
+  }
+
+  const onHide = () => {
+    if (!excelFileForm.saving) {
+      props.onCancel()
+    }
   }
 
   const onInputUserId = (userId: string) => {
@@ -104,8 +111,8 @@ function ExcelFileModal(props: ExcelFileModalProps) {
   }
 
   return (
-    <Modal show={props.show} onHide={props.onCancel} size="xl">
-      <Modal.Header closeButton>엑셀 파일 등록</Modal.Header>
+    <Modal show={props.show} onHide={onHide} size="xl">
+      <Modal.Header closeButton={!excelFileForm.saving}>엑셀 파일 등록</Modal.Header>
       <Modal.Body>
         <Container>
           <Row>
@@ -139,6 +146,7 @@ function ExcelFileModal(props: ExcelFileModalProps) {
         <ProgressButton
           variant="primary"
           loading={excelFileForm.saving}
+          progressText="Saving..."
           onClick={onSubmit}
           disabled={isEmpty(householdAccounts.items)}>
           Submit
@@ -156,57 +164,7 @@ interface ExcelFileModalProps {
   onSubmitted: () => void
 }
 
-function ExcelFileForm(props: ExcelFileFormProps) {
-  const onInputUserId = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const userId = e.target?.value || ''
-    props.onInputUserId(userId)
-  }
-
-  const onInputExcelFile = async (e: React.FocusEvent<HTMLInputElement>) => {
-    const file = e.target.files?.item(0)
-    props.onInputExcelFile(file)
-  }
-
-  return (
-    <Form noValidate validated={props.validated}>
-      <Form.Row>
-        <Form.Group as={Col}>
-          <Form.Label>사용자 이름</Form.Label>
-          <Form.Control type="text" value={props.userId} onInput={onInputUserId} required disabled={props.disabled} />
-          <Form.Control.Feedback type="invalid">사용자 이름을 입력해 주세요.</Form.Control.Feedback>
-        </Form.Group>
-        <Form.Group as={Col}>
-          <Form.Label>공유 엑셀 파일</Form.Label>
-          <Form.File id="input-excel-file" custom>
-            <Form.File.Input
-              required
-              disabled={props.disabled}
-              onInput={onInputExcelFile}
-              accept=".xls,.xlsx,.cvs"
-              isInvalid={props.file.invalidExcelFile || props.file.invalidModel}
-            />
-            <Form.File.Label data-browse="Browse">{props.file.value?.name || '파일을 선택해 주세요.'}</Form.File.Label>
-            <Form.Control.Feedback type="invalid">
-              {props.file.invalidExcelFile
-                ? '엑셀 파일을 선택해 주세요.'
-                : props.file.invalidModel
-                ? '공유 엑셀 파일 내용을 분석 할 수 없습니다.'
-                : ''}
-            </Form.Control.Feedback>
-          </Form.File>
-        </Form.Group>
-      </Form.Row>
-    </Form>
-  )
-}
-
-interface ExcelFileFormProps extends ExcelFileFormState {
-  disabled: boolean
-  onInputUserId: (userId: string) => void
-  onInputExcelFile: (file?: File | null) => void
-}
-
-interface ExcelFileFormState {
+export interface ExcelFileFormState {
   validated: boolean
   file: {
     value?: File | null

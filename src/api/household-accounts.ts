@@ -18,7 +18,7 @@ export const put = (userId: string, excelFile: File, contents: HouseholdAccounts
     },
     data: excelFile,
   })
-  const contentsPromise = doongjiApiClient.put(`/shared-excels/${userId}/contents`, contents, { timeout: 60000 })
+  const contentsPromise = doongjiApiClient.put(`/shared-excels/${userId}/contents`, contents, { timeout: 600000 })
   return Promise.all([uploadPromise, contentsPromise])
 }
 

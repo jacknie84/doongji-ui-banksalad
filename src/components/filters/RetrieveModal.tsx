@@ -38,6 +38,8 @@ function RetrieveModal(props: RetrieveModalProps) {
     setPredicates(clone)
   }
 
+  const onInputName = (e: React.FormEvent<HTMLInputElement>) => setName(e.currentTarget.value)
+
   return (
     <Modal show={props.show} onHide={props.onCancel}>
       <Modal.Header closeButton>검색</Modal.Header>
@@ -46,11 +48,11 @@ function RetrieveModal(props: RetrieveModalProps) {
           <Form.Row>
             <Form.Group as={Col}>
               <Form.Label>이름</Form.Label>
-              <Form.Control type="text" value={name} onInput={onInputValue(setName)} />
+              <Form.Control type="text" value={name} onInput={onInputName} onFocus={() => setName('')} />
             </Form.Group>
 
             <Form.Group as={Col}>
-              <Form.Check type="checkbox" label="즐겨찾기" checked={favorite} onInput={onInputChecked(setFavorite)} />
+              <Form.Check type="checkbox" label="즐겨찾기" checked={favorite} onInput={() => setFavorite(!favorite)} />
             </Form.Group>
           </Form.Row>
 
@@ -83,20 +85,6 @@ function RetrieveModal(props: RetrieveModalProps) {
       </Modal.Footer>
     </Modal>
   )
-}
-
-function onInputValue(callback: (value: string) => void) {
-  return (e: React.FormEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement
-    callback(target.value)
-  }
-}
-
-function onInputChecked(callback: (value: boolean) => void) {
-  return (e: React.FormEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement
-    callback(!target.checked)
-  }
 }
 
 export default RetrieveModal
@@ -162,9 +150,8 @@ function FormPredicate(props: FormPredicateProps) {
     props.onInput({ ...props.predicate, operator: key as PredicateOperator })
   }
 
-  const onInputValues = (fieldValues: string) => {
-    props.onInput({ ...props.predicate, fieldValues })
-  }
+  const onInputFieldValues = (e: React.FormEvent<HTMLInputElement>) =>
+    props.onInput({ ...props.predicate, fieldValues: e.currentTarget.value })
 
   return (
     <Form.Row>
@@ -180,7 +167,7 @@ function FormPredicate(props: FormPredicateProps) {
               <Dropdown.Item onClick={() => onSelectField([key, value])}>{value}</Dropdown.Item>
             ))}
           </DropdownButton>
-          <Form.Control size="sm" onInput={onInputValue(onInputValues)} value={fieldValues} />
+          <Form.Control size="sm" onInput={onInputFieldValues} value={fieldValues} />
           <DropdownButton
             id="form-predicate-operator"
             as={InputGroup.Append}

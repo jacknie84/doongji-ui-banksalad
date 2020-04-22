@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Table, Spinner } from 'react-bootstrap'
 import Paginations from '../Paginations'
 import { HouseholdAccounts } from '../../api/household-accounts'
 import { isEmpty } from 'lodash'
 import Numeral from 'numeral'
+import UserContext from '../UserContext'
 
 function HouseholdAccountsTable(props: HouseholdAccountsTableProps) {
   return (
@@ -66,6 +67,7 @@ export function Thead() {
   )
 }
 export function Tbody(props: HouseholdAccountsTbodyProps) {
+  const users = useContext(UserContext)
   return (
     <tbody>
       {isEmpty(props.items) ? (
@@ -88,7 +90,7 @@ export function Tbody(props: HouseholdAccountsTbodyProps) {
             </td>
             <td>{item.useCurrency}</td>
             <td>{item.useObject}</td>
-            <td>{item.userId}</td>
+            <td>{users[item.userId] || item.userId}</td>
           </tr>
         ))
       )}
