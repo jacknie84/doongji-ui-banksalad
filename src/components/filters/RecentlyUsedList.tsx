@@ -4,7 +4,7 @@ import Paginations from '../Paginations'
 
 function RecentlyUsedList(props: RecentlyUsedListProps) {
   return (
-    <div>
+    <>
       <ListGroup className="mb-2" variant="flush">
         {props.content.map(({ id, name }, index) => (
           <ListGroup.Item
@@ -26,7 +26,7 @@ function RecentlyUsedList(props: RecentlyUsedListProps) {
         }}
         onInputPage={props.onInputPage}
       />
-    </div>
+    </>
   )
 }
 

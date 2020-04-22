@@ -1,16 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import React from 'react'
 import { Button, ButtonProps, Spinner } from 'react-bootstrap'
-import { DefaultProgressType, ProgressState } from '../store/progress'
-
-const defaultTypes = [DefaultProgressType.UPLOAD, DefaultProgressType.DOWNLOAD]
 
 function ProgressButton(props: ProgressButtonProps) {
-  const [loading, setLoading] = useState<boolean>(false)
-  const progress = useSelector((state: { progress: ProgressState }) => state.progress)
-  const { types = defaultTypes, progressText = 'Loading...', children, disabled = false } = props
-
-  useEffect(() => setLoading(types.some(type => Object.keys(progress).indexOf(type) >= 0)), [types, progress])
+  const { loading, progressText = 'Loading...', children, disabled = false } = props
 
   return (
     <Button {...props} disabled={disabled || loading}>
@@ -23,9 +15,10 @@ function ProgressButton(props: ProgressButtonProps) {
 export default ProgressButton
 
 interface ProgressButtonProps extends ButtonProps {
-  types?: string[]
+  loading: boolean
   progressText?: string
   disabled?: boolean
   children?: string
   onClick?: () => void
+  onComplete?: () => void
 }

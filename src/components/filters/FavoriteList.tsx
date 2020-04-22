@@ -4,7 +4,7 @@ import Paginations from '../Paginations'
 
 function FavoriteList() {
   return (
-    <div>
+    <>
       <p className="text-muted">즐겨 찾는 필터 목록</p>
       <ListGroup className="mb-2" variant="flush">
         <ListGroupItem action active onClick={console.log.bind(console)}>
@@ -24,7 +24,7 @@ function FavoriteList() {
         }}
         onInputPage={console.log.bind(console)}
       />
-    </div>
+    </>
   )
 }
 

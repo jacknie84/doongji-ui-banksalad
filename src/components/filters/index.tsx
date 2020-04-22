@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Pagination, Page, Condition } from 'doongji-ui-banksalad'
 import { Row, Col, Button } from 'react-bootstrap'
 import RecentlyUsedList, { RecentlyUsedData } from './RecentlyUsedList'
@@ -6,9 +6,27 @@ import { fetchBySelector, fetchById, save, RetrievedCondition } from '../../api/
 import RetrieveModal from './RetrieveModal'
 import FavoriteList from './FavoriteList'
 
+const defaultPage = 1
+const defaultSize = 5
+
 function Filters(props: FiltersProps) {
+  const [initialized, setInitialized] = useState<boolean>(false)
   const [retrieve, setRetrieve] = useState<RetrievedState>({ modal: false })
-  const [recentlyUsed, setRecentlyUsed] = useRecentlyUsedState()
+  const [recentlyUsed, setRecentlyUsed] = useState<RecentlyUsedState>({
+    page: defaultPage,
+    size: defaultSize,
+    totalCount: 0,
+    content: [],
+  })
+
+  useEffect(() => {
+    if (!initialized) {
+      fetchRecentlyUsedPage().then(({ totalCount, content }) =>
+        setRecentlyUsed({ ...recentlyUsed, totalCount, content }),
+      )
+      setInitialized(true)
+    }
+  }, [initialized, recentlyUsed])
 
   const onInputRecentlyUsedPage = async (page: number) => {
     const { totalCount, content } = await fetchRecentlyUsedPage(page)
@@ -80,30 +98,6 @@ interface RecentlyUsedState extends Pagination, Page<RecentlyUsedData> {}
 interface RetrievedState {
   modal: boolean
   model?: RetrievedCondition
-}
-
-const defaultPage = 1
-const defaultSize = 5
-
-function useRecentlyUsedState(): [RecentlyUsedState, Dispatch<SetStateAction<RecentlyUsedState>>] {
-  const [fetched, setFetched] = useState<boolean>(false)
-  const [recentlyUsed, setRecentlyUsed] = useState<RecentlyUsedState>({
-    page: defaultPage,
-    size: defaultSize,
-    totalCount: 0,
-    content: [],
-  })
-
-  useEffect(() => {
-    if (!fetched) {
-      fetchRecentlyUsedPage().then(({ totalCount, content }) =>
-        setRecentlyUsed({ ...recentlyUsed, totalCount, content }),
-      )
-      setFetched(true)
-    }
-  }, [fetched, recentlyUsed])
-
-  return [recentlyUsed, setRecentlyUsed]
 }
 
 async function fetchRecentlyUsedPage(page: number = defaultPage): Promise<Page<RecentlyUsedData>> {

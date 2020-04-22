@@ -1,15 +1,15 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 const {
   actions: { update },
   reducer,
 } = createSlice({
   name: 'progress',
-  initialState: {},
+  initialState: {} as ProgressState,
   reducers: {
-    update(state, action) {
+    update(state: ProgressState, action: PayloadAction<ProgressPayload>) {
       const { key, event } = action.payload
-      const clone = { ...state } as any
+      const clone = { ...state } as ProgressState
       if (isComplete(event)) {
         delete clone[key]
       } else {
@@ -41,8 +41,16 @@ export interface ProgressState {
   [key: string]: ProgressEvent
 }
 
+export interface ProgressPayload {
+  key: string
+  event: ProgressEvent
+}
+
 interface ProgressEvent {
   lengthComputable: boolean
   loaded: number
   total: number
+  additional?: ProgressEventAdditional
 }
+
+type ProgressEventAdditional = { [key: string]: string | number | boolean | null | undefined | ProgressEventAdditional }

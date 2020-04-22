@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { PredicateOperator } from 'doongji-ui-banksalad'
 import { Modal, Form, Button, Col, InputGroup, DropdownButton, Dropdown } from 'react-bootstrap'
 import { RetrievedCondition, RetrievedConditionPredicate } from '../../api/retrieved-conditions'
-import ProgressButton from '../ProgressButton'
 
 function RetrieveModal(props: RetrieveModalProps) {
   const { show, condition } = props
@@ -76,11 +75,11 @@ function RetrieveModal(props: RetrieveModalProps) {
         <Button variant="secondary" onClick={props.onCancel}>
           Cancel
         </Button>
-        <ProgressButton
+        <Button
           variant="primary"
           onClick={() => props.onSubmit({ id: props.condition?.id, name, favorite, predicates })}>
           Submit
-        </ProgressButton>
+        </Button>
       </Modal.Footer>
     </Modal>
   )

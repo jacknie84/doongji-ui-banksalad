@@ -34,7 +34,7 @@ function getStartPage(page: number, pageSize: number): number {
   if (pageSize === 1) {
     return page
   } else {
-    return pageSize * Math.floor(page / pageSize) + 1
+    return pageSize * Math.floor((page - 1) / pageSize) + 1
   }
 }
 

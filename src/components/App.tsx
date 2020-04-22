@@ -6,6 +6,7 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 import Filters from './filters'
 import Records from './records'
 import Visualization from './visualization'
+import GlobalToasts from './GlobalToasts'
 
 function App() {
   const [condition, setCondition] = useState<Condition>({ predicates: [] })
@@ -31,6 +32,7 @@ function App() {
           </BrowserRouter>
         </Col>
       </Row>
+      <GlobalToasts />
     </Container>
   )
 }
