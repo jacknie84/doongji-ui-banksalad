@@ -49,7 +49,8 @@ function getEndPage(page: number, pageSize: number, startPage: number, totalPage
 
 function PaginationItem(props: PaginationItemProps) {
   const { active = false, disabled = false, type = 'item', page } = props.options
-  const onClick = () => props.onClick(page)
+  const onClick = () => props.onClick && props.onClick(page)
+
   switch (type) {
     case 'item':
       return (
@@ -80,7 +81,7 @@ export interface PagiantionProps {
   /**
    * 페이지가 입력 이벤트 핸들러
    */
-  onInputPage: (page: number) => void
+  onInputPage?: (page: number) => void
 }
 
 export interface PaginationOptions {
@@ -120,7 +121,7 @@ export interface PaginationOptions {
 
 interface PaginationItemProps {
   options: PaginationItemOptions
-  onClick: (page: number) => void
+  onClick?: (page: number) => void
 }
 
 interface PaginationItemOptions {

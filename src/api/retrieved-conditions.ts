@@ -17,7 +17,7 @@ export async function fetchBySelector(selector: Selector) {
   return createPage<RetrievedCondition>(status, headers, data)
 }
 
-export function save(condition: RetrievedCondition) {
+export function save(condition: RetrievedCondition): Promise<RetrievedCondition> {
   if (condition.id) {
     return put(condition.id, condition)
   } else {
@@ -37,14 +37,16 @@ async function post(condition: RetrievedCondition) {
   const { headers } = await doongjiApiClient.post('/retrieved-conditions', condition)
   const { data } = await doongjiApiClient.get(headers.location)
   await doongjiApiClient.put(`/retrieved-conditions/${data.id}/predicates`, condition.predicates)
+  return data
 }
 
-function put(id: number, condition: RetrievedCondition) {
+async function put(id: number, condition: RetrievedCondition) {
   const conditionEndpoint = `/retrieved-conditions/${id}`
   const predicatesEndpoint = `${conditionEndpoint}/predicates`
   const conditionPromise = doongjiApiClient.put(conditionEndpoint, condition)
   const predicatesPromise = doongjiApiClient.put(predicatesEndpoint, condition.predicates)
-  return Promise.all([conditionPromise, predicatesPromise])
+  await Promise.all([conditionPromise, predicatesPromise])
+  return condition
 }
 
 export interface RetrievedCondition {

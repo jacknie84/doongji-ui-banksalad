@@ -21,6 +21,7 @@ function App() {
             <Filters onRetrieve={setCondition} />
           </Col>
           <Col>
+            <GlobalToasts />
             <BrowserRouter>
               <Switch>
                 <Redirect exact from="/" to="/records" />
@@ -35,7 +36,6 @@ function App() {
           </Col>
         </Row>
       </UserContext.Provider>
-      <GlobalToasts />
     </Container>
   )
 }

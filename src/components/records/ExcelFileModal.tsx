@@ -111,7 +111,11 @@ function ExcelFileModal(props: ExcelFileModalProps) {
   }
 
   return (
-    <Modal show={props.show} onHide={onHide} size="xl">
+    <Modal
+      show={props.show}
+      onHide={onHide}
+      size="xl"
+      style={{ cursor: excelFileForm.saving || householdAccounts.loading ? 'progress' : 'auto' }}>
       <Modal.Header closeButton={!excelFileForm.saving}>엑셀 파일 등록</Modal.Header>
       <Modal.Body>
         <Container>

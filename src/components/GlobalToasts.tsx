@@ -1,29 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Toast } from 'react-bootstrap'
-import { ToastsState, ToastPayload, empty } from '../store/toasts'
-import { isEmpty } from 'lodash'
-import { v4 as uuid } from 'uuid'
+import { ToastsState, ToastState, remove } from '../store/toasts'
 
 const closeDelay = 3000
 
 function GlobalToasts() {
   const dispatch = useDispatch()
-  const messages = useSelector<{ toasts: ToastsState }>(state => state.toasts) as ToastsState
-  const [toasts, setToasts] = useState<GlobalToastsState>([])
-
-  useEffect(() => {
-    if (!isEmpty(messages)) {
-      const shown = toasts.filter(({ show }) => show)
-      setToasts([...shown, ...messages.map(message => ({ ...message, show: true, id: uuid() }))])
-      dispatch(empty())
-    }
-  }, [dispatch, toasts, messages])
-
-  const onCloseToast = (index: number) => {
-    toasts[index].show = false
-    setToasts([...toasts])
-  }
+  const toasts = useSelector<{ toasts: ToastsState }>(state => state.toasts) as ToastsState
+  const onCloseToast = (id: string) => dispatch(remove(id))
 
   return (
     <div
@@ -31,16 +16,16 @@ function GlobalToasts() {
       aria-atomic="true"
       style={{
         position: 'relative',
-        minHeight: '200px',
+        zIndex: 1000,
       }}>
       <div
         style={{
           position: 'absolute',
           top: 0,
-          left: 0,
+          right: 0,
         }}>
-        {toasts.map((toast, index) => (
-          <GlobalToast {...toast} key={toast.id} onClose={() => onCloseToast(index)} />
+        {toasts.map(toast => (
+          <GlobalToast {...toast} key={toast.id} onClose={() => onCloseToast(toast.id)} />
         ))}
       </div>
     </div>
@@ -49,19 +34,12 @@ function GlobalToasts() {
 
 export default GlobalToasts
 
-type GlobalToastsState = GlobalToastState[]
-
-interface GlobalToastState extends ToastPayload {
-  id: string
-  show: boolean
-}
-
 function GlobalToast(props: GlobalToastProps) {
   return (
-    <Toast onClose={props.onClose} show={props.show} delay={closeDelay} autohide>
+    <Toast onClose={props.onClose} show={props.show} delay={closeDelay} autohide animation>
       {props.title && (
-        <Toast.Header>
-          <strong className="mr-auto">{props.title}</strong>
+        <Toast.Header className="bg-info">
+          <strong className="mr-auto text-light">{props.title}</strong>
           <small>just now</small>
         </Toast.Header>
       )}
@@ -70,6 +48,6 @@ function GlobalToast(props: GlobalToastProps) {
   )
 }
 
-interface GlobalToastProps extends GlobalToastState {
-  onClose: () => void
+interface GlobalToastProps extends ToastState {
+  onClose?: () => void
 }

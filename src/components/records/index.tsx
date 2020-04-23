@@ -43,7 +43,7 @@ function Records(props: RecordsProps) {
     } else {
       setPage(1)
     }
-    dispatch(push({ title: '시스템 알림', content: '뱅크샐러드 공유 엑셀 파일이 정상적으로 등록 되었습니다.' }))
+    dispatch(push({ title: '시스템 알림', content: '뱅크샐러드 공유 엑셀 파일 정상 등록' }))
   }
 
   return (
