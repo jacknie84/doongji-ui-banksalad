@@ -5,7 +5,7 @@ import { Row, Col, Button } from 'react-bootstrap'
 import RetrievedConditions from './RetrievedConditions'
 import { fetchById, save, RetrievedCondition } from '../../api/retrieved-conditions'
 import RetrieveModal from './RetrieveModal'
-import TestButton from '../TestButton'
+// import TestButton from '../TestButton'
 import { push } from '../../store/toasts'
 
 function Filters(props: FiltersProps) {
@@ -64,7 +64,7 @@ function Filters(props: FiltersProps) {
           onInitialized={() => setRetrievedConditions({ ...retrievedConditions, initialized: true })}
           onSelect={onSelectRetrievedCondition}
         />
-        <TestButton />
+        {/* <TestButton /> */}
       </Col>
     </Row>
   )

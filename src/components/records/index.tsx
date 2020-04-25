@@ -27,7 +27,7 @@ function Records(props: RecordsProps) {
     setLoading(true)
     const selector = { pagination: { page, size, orders }, selectedFields: [], condition } as Selector
     fetchBySelector(selector)
-      .then(({ content, totalCount }) => setModel({ items: content, totalCount, totalAmount: 0 }))
+      .then(({ content, totalCount, totalAmount }) => setModel({ items: content, totalCount, totalAmount }))
       .then(() => setLoading(false))
   }
 

@@ -29,7 +29,7 @@ function App() {
                   <Records condition={condition} />
                 </Route>
                 <Route path="/visualization">
-                  <Visualization />
+                  <Visualization condition={condition} />
                 </Route>
               </Switch>
             </BrowserRouter>

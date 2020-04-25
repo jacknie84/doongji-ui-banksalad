@@ -4,8 +4,16 @@ import { isEmpty } from 'lodash'
 
 export const fetchBySelector = async (selector: Selector) => {
   const q = JSON.stringify(selector)
-  const { status, headers, data = [] } = await doongjiApiClient.get('/household-accounts', { params: { q } })
-  return createPage(status, headers, data)
+  const pagePromise = doongjiApiClient.get('/household-accounts', { params: { q } })
+  const totalPromise = doongjiApiClient.get('/statistics/total', { params: { q } })
+  const [
+    { status, headers, data: householdAccounts = [] },
+    {
+      data: [total = { group: 'TOTAL', totalAmount: 0 }],
+    },
+  ] = await Promise.all([pagePromise, totalPromise])
+  const page = createPage(status, headers, householdAccounts)
+  return { ...page, ...total }
 }
 
 export const put = (userId: string, excelFile: File, contents: HouseholdAccounts[]) => {
