@@ -12,9 +12,11 @@ declare module 'doongji-ui-banksalad' {
   }
 
   interface Order {
-    direction: 'ASC' | 'DESC'
+    direction: Direction
     property: string
   }
+
+  type Direction = 'ASC' | 'DESC'
 
   interface Condition {
     predicates: Predicate[]

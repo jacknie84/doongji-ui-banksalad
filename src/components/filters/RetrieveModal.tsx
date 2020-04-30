@@ -2,24 +2,26 @@ import React, { useState, useEffect } from 'react'
 import { PredicateOperator } from 'doongji-ui-banksalad'
 import { Modal, Form, Button, Col, InputGroup, DropdownButton, Dropdown } from 'react-bootstrap'
 import { RetrievedCondition, RetrievedConditionPredicate } from '../../api/retrieved-conditions'
+import { v4 as uuid } from 'uuid'
+import { set } from 'lodash'
 
 function RetrieveModal(props: RetrieveModalProps) {
   const { show, condition } = props
   const [name, setName] = useState<string>('')
   const [favorite, setFavorite] = useState<boolean>(false)
-  const [predicates, setPredicates] = useState<RetrievedConditionPredicate[]>([])
+  const [predicates, setPredicates] = useState<RetrievedPredicatesState>({})
 
   useEffect(() => {
     if (show) {
       setName(condition?.name || '제목없음')
       setFavorite(condition?.favorite || false)
-      setPredicates(condition?.predicates || [])
+      setPredicates((condition?.predicates || []).reduce((object, predicate) => set(object, uuid(), predicate), {}))
     }
   }, [show, condition])
 
-  function onInputPredicate(index: number, predicate: RetrievedConditionPredicate) {
-    const clone = [...predicates]
-    clone[index] = predicate
+  function onInputPredicate(key: string, predicate: RetrievedConditionPredicate) {
+    const clone = { ...predicates }
+    clone[key] = predicate
     setPredicates(clone)
   }
 
@@ -29,12 +31,12 @@ function RetrieveModal(props: RetrieveModalProps) {
       fieldValues: '',
       operator: 'EQUALS' as PredicateOperator,
     }
-    setPredicates([...predicates, predicate])
+    setPredicates({ ...predicates, [uuid()]: predicate })
   }
 
-  function onDeletePredicate(index: number) {
-    const clone = [...predicates]
-    clone.splice(index, 1)
+  function onDeletePredicate(key: string) {
+    const clone = { ...predicates }
+    delete clone[key]
     setPredicates(clone)
   }
 
@@ -63,11 +65,12 @@ function RetrieveModal(props: RetrieveModalProps) {
                 +
               </Button>
             </Form.Label>
-            {predicates.map((predicate, index) => (
+            {Object.entries(predicates).map(([key, predicate]) => (
               <FormPredicate
+                key={key}
                 predicate={predicate}
-                onInput={predicate => onInputPredicate(index, predicate)}
-                onDelete={() => onDeletePredicate(index)}
+                onInput={predicate => onInputPredicate(key, predicate)}
+                onDelete={() => onDeletePredicate(key)}
               />
             ))}
           </Form.Group>
@@ -79,7 +82,9 @@ function RetrieveModal(props: RetrieveModalProps) {
         </Button>
         <Button
           variant="primary"
-          onClick={() => props.onSubmit({ id: props.condition?.id, name, favorite, predicates })}>
+          onClick={() =>
+            props.onSubmit({ id: props.condition?.id, name, favorite, predicates: Object.values(predicates) })
+          }>
           Submit
         </Button>
       </Modal.Footer>
@@ -94,6 +99,10 @@ interface RetrieveModalProps {
   condition?: RetrievedCondition
   onCancel: () => void
   onSubmit: (condition: RetrievedCondition) => void
+}
+
+interface RetrievedPredicatesState {
+  [key: string]: RetrievedConditionPredicate
 }
 
 const fields: { [key: string]: string } = {
@@ -126,32 +135,13 @@ const operators: { [key: string]: string } = {
 }
 
 function FormPredicate(props: FormPredicateProps) {
-  const [labels, setLabels] = useState<LabelsState>({
-    field: fields[props.predicate.fieldName],
-    operator: operators[props.predicate.operator],
-  })
-  const [fieldValues, setFieldValues] = useState<string>('')
+  const { predicate, onInput } = props
+  const { fieldName, operator, fieldValues } = predicate
 
-  useEffect(() => {
-    setLabels({
-      field: fields[props.predicate.fieldName],
-      operator: operators[props.predicate.operator],
-    })
-    setFieldValues(props.predicate.fieldValues)
-  }, [props.predicate])
-
-  const onSelectField = ([key, value]: string[]) => {
-    setLabels({ ...labels, field: value })
-    props.onInput({ ...props.predicate, fieldName: key })
-  }
-
-  const onSelectOperator = ([key, value]: string[]) => {
-    setLabels({ ...labels, operator: value })
-    props.onInput({ ...props.predicate, operator: key as PredicateOperator })
-  }
-
+  const onSelectField = (key: string) => onInput({ ...predicate, fieldName: key })
+  const onSelectOperator = (key: string) => onInput({ ...predicate, operator: key as PredicateOperator })
   const onInputFieldValues = (e: React.FormEvent<HTMLInputElement>) =>
-    props.onInput({ ...props.predicate, fieldValues: e.currentTarget.value })
+    onInput({ ...predicate, fieldValues: e.currentTarget.value })
 
   return (
     <Form.Row>
@@ -161,10 +151,10 @@ function FormPredicate(props: FormPredicateProps) {
             id="form-predicate-field"
             as={InputGroup.Prepend}
             variant="outline-secondary"
-            title={labels.field}
+            title={fields[fieldName] || '선택'}
             size="sm">
             {Object.entries(fields).map(([key, value]) => (
-              <Dropdown.Item onClick={() => onSelectField([key, value])}>{value}</Dropdown.Item>
+              <Dropdown.Item onClick={() => onSelectField(key)}>{value}</Dropdown.Item>
             ))}
           </DropdownButton>
           <Form.Control size="sm" onInput={onInputFieldValues} value={fieldValues} />
@@ -172,10 +162,10 @@ function FormPredicate(props: FormPredicateProps) {
             id="form-predicate-operator"
             as={InputGroup.Append}
             variant="outline-secondary"
-            title={labels.operator}
+            title={operators[operator] || '선택'}
             size="sm">
             {Object.entries(operators).map(([key, value]) => (
-              <Dropdown.Item onClick={() => onSelectOperator([key, value])}>{value}</Dropdown.Item>
+              <Dropdown.Item onClick={() => onSelectOperator(key)}>{value}</Dropdown.Item>
             ))}
           </DropdownButton>
         </InputGroup>
@@ -193,9 +183,4 @@ interface FormPredicateProps {
   predicate: RetrievedConditionPredicate
   onInput: (predicate: RetrievedConditionPredicate) => void
   onDelete: () => void
-}
-
-interface LabelsState {
-  field?: string
-  operator?: string
 }

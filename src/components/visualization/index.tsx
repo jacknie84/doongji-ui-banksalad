@@ -55,15 +55,13 @@ function BarChart(props: BarChartProps) {
   const [loading, setLoading] = useState<boolean>(false)
   const [statistics, setStatistics] = useState<StatisticsState>([])
 
-  useEffect(() => loadData(type, condition), [type, condition])
-
-  const loadData = (groupBy: GroupBy, condition: Condition) => {
+  useEffect(() => {
     setLoading(true)
-    fetchGroupBy(groupBy, condition)
+    fetchGroupBy(type, condition)
       .then(data => data.sort((a, b) => sort(a.group, b.group)))
       .then(setStatistics)
       .then(() => setLoading(false))
-  }
+  }, [type, condition, sort])
 
   const { header, height } = groupByOptions[type]
   const bars = statistics.map(({ group, totalAmount }, index) => [group, totalAmount, resolveBarStyle(index)])

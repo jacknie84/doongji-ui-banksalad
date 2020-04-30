@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
-import { Table, Spinner } from 'react-bootstrap'
+import { Order, Direction } from 'doongji-ui-banksalad'
+import { Table, Spinner, Button } from 'react-bootstrap'
 import Paginations from '../Paginations'
 import { HouseholdAccounts } from '../../api/household-accounts'
 import { isEmpty } from 'lodash'
@@ -13,7 +14,15 @@ function HouseholdAccountsTable(props: HouseholdAccountsTableProps) {
         {props.loading ? (
           <Loading />
         ) : (
-          [<Caption {...props} key="caption" />, <Thead key="thead" />, <Tbody {...props} key="tbody" />]
+          [
+            <Caption {...props} key="caption" />,
+            props.orders && props.onInputOrders ? (
+              <OrderableThead key="thead" orders={props.orders} onInputOrders={props.onInputOrders} />
+            ) : (
+              <DefaultThead key="thead" />
+            ),
+            <Tbody {...props} key="tbody" />,
+          ]
         )}
       </Table>
       {!props.loading && (
@@ -27,7 +36,9 @@ export default HouseholdAccountsTable
 
 export interface HouseholdAccountsTableProps extends HouseholdAccountsTbodyProps, HouseholdAccountsCaptionProps {
   loading: boolean
+  orders?: Order[]
   onInputPage: (page: number) => void
+  onInputOrders?: (orders: Order[]) => void
 }
 
 export function Loading() {
@@ -41,6 +52,7 @@ export function Loading() {
     </thead>
   )
 }
+
 export function Caption(props: HouseholdAccountsCaptionProps) {
   return (
     <caption>
@@ -48,24 +60,113 @@ export function Caption(props: HouseholdAccountsCaptionProps) {
     </caption>
   )
 }
-export function Thead() {
+
+const columns: Column[] = [
+  { property: 'useDate', label: '날짜' },
+  { property: 'useTime', label: '시간' },
+  { property: 'type', label: '타입' },
+  { property: 'category', label: '대분류' },
+  { property: 'subCategory', label: '소분류' },
+  { property: 'description', label: '내용' },
+  { property: 'useAmount', label: '금액' },
+  { property: 'useCurrency', label: '화폐' },
+  { property: 'useObject', label: '결제수단' },
+  { property: 'userId', label: '사용자' },
+]
+
+interface Column {
+  property: string
+  label: string
+}
+
+export function OrderableThead(props: OrderableTheadProps) {
+  const onInput = (property: string, direction: Direction | null) => {
+    const columnProperties = columns.map(({ property }) => property)
+    const orders = [...props.orders]
+    const index = orders.findIndex(order => order.property === property)
+    if (direction) {
+      if (index >= 0) {
+        orders[index].direction = direction
+      } else {
+        orders.push({ property, direction })
+      }
+    } else if (index >= 0) {
+      orders.splice(index, 1)
+    }
+    props.onInputOrders(
+      orders.sort(({ property: p1 }, { property: p2 }) => columnProperties.indexOf(p1) - columnProperties.indexOf(p2)),
+    )
+  }
   return (
     <thead>
       <tr>
-        <th>날짜</th>
-        <th>시간</th>
-        <th>타입</th>
-        <th>대분류</th>
-        <th>소분류</th>
-        <th>내용</th>
-        <th>금액</th>
-        <th>화폐</th>
-        <th>결제수단</th>
-        <th>사용자</th>
+        {columns.map(({ property, label }) => (
+          <th>
+            <CaretToggle
+              property={property}
+              direction={(props.orders.find(order => order.property === property) || {}).direction}
+              onInput={onInput}>
+              {label}
+            </CaretToggle>
+          </th>
+        ))}
       </tr>
     </thead>
   )
 }
+
+interface OrderableTheadProps {
+  orders: Order[]
+  onInputOrders: (orders: Order[]) => void
+}
+
+interface DirectionsState {
+  [key: string]: Direction
+}
+
+export function DefaultThead() {
+  return (
+    <thead>
+      <tr>
+        {columns.map(({ label }) => (
+          <th>{label}</th>
+        ))}
+      </tr>
+    </thead>
+  )
+}
+
+export function CaretToggle(props: CaretToggleProps) {
+  const { children, direction, property } = props
+
+  const onClick = () => {
+    switch (direction) {
+      case 'DESC':
+        props.onInput(property, 'ASC')
+        break
+      case 'ASC':
+        props.onInput(property, null)
+        break
+      default:
+        props.onInput(property, 'DESC')
+    }
+  }
+
+  return (
+    <Button variant="link" size="sm" onClick={onClick}>
+      {children}
+      {direction === 'ASC' ? <span>&#x25b4;</span> : direction === 'DESC' ? <span>&#x25be;</span> : ''}
+    </Button>
+  )
+}
+
+interface CaretToggleProps {
+  children: string
+  property: string
+  direction?: Direction
+  onInput: (property: string, direction: Direction | null) => void
+}
+
 export function Tbody(props: HouseholdAccountsTbodyProps) {
   const users = useContext(UserContext)
   return (

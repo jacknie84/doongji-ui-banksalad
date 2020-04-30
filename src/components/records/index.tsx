@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { Condition, Selector } from 'doongji-ui-banksalad'
+import { Condition, Selector, Order } from 'doongji-ui-banksalad'
 import { Button, Row, Col, Form, Badge } from 'react-bootstrap'
 import ExcelFileModal from './ExcelFileModal'
 import HouseholdAccountsTable from './HouseholdAccountsTable'
 import { push } from '../../store/toasts'
 import { HouseholdAccounts, fetchBySelector } from '../../api/household-accounts'
-
-const orders = [
-  { property: 'useDate', direction: 'DESC' },
-  { property: 'useTime', direction: 'DESC' },
-]
 
 function Records(props: RecordsProps) {
   const dispatch = useDispatch()
@@ -18,12 +13,16 @@ function Records(props: RecordsProps) {
   const [loading, setLoading] = useState<boolean>(false)
   const [page, setPage] = useState<number>(1)
   const [size, setSize] = useState<number>(10)
+  const [orders, setOrders] = useState<Order[]>([
+    { property: 'useDate', direction: 'DESC' },
+    { property: 'useTime', direction: 'DESC' },
+  ])
   const [modal, setModal] = useState<boolean>(false)
   const [model, setModel] = useState<ModelState>({ items: [], totalCount: 0, totalAmount: 0 })
 
-  useEffect(() => loadModel(page, size, condition), [page, size, condition])
+  useEffect(() => loadModel(page, size, orders, condition), [page, size, orders, condition])
 
-  const loadModel = (page: number, size: number, condition: Condition) => {
+  const loadModel = (page: number, size: number, orders: Order[], condition: Condition) => {
     setLoading(true)
     const selector = { pagination: { page, size, orders }, selectedFields: [], condition } as Selector
     fetchBySelector(selector)
@@ -39,7 +38,7 @@ function Records(props: RecordsProps) {
   const onSubmittedExcelFile = () => {
     setModal(false)
     if (page === 1) {
-      loadModel(page, size, condition)
+      loadModel(page, size, orders, condition)
     } else {
       setPage(1)
     }
@@ -71,7 +70,9 @@ function Records(props: RecordsProps) {
           page={page}
           size={size}
           pageSize={10}
+          orders={orders}
           onInputPage={setPage}
+          onInputOrders={setOrders}
         />
       </Col>
     </Row>

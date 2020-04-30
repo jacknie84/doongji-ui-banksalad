@@ -14,9 +14,7 @@ function RetrievedConditions(props: RetrievedConditionsProps) {
 
   useEffect(() => {
     if (!initialized) {
-      if (!selectedId || model.content.every(({ id }) => id !== selectedId)) {
-        loadModel(1, favorite)
-      }
+      loadModel(1, favorite)
       onInitialized()
     }
   }, [initialized, selectedId, model.content, favorite, onInitialized])
